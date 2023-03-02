@@ -2,7 +2,7 @@ version: "3"
 
 services:
   chat-api-service:
-    image: chat-api-service:0.1.0
+    image: chat-api-service:0.1.1
     container_name: chat-api-service
     build:
       context: ./chat_api
