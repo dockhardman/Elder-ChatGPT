@@ -18,6 +18,14 @@ def create_app():
     async def root():
         return PlainTextResponse("OK")
 
+
+    # Router
+    from app.api.router import router as router_main
+    from app.api.v1.router import router as router_v1
+
+    app.include_router(router_main, prefix=f"/api")
+    app.include_router(router_v1, prefix=f"/api/v1")
+
     return app
 
 
