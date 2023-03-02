@@ -7,6 +7,9 @@ services:
     build:
       context: ./chat_api
       dockerfile: Dockerfile
+    environment:
+      - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+      - openai_organization=${openai_organization:-org-************************}
     ports:
       - "8980:80"
     networks:

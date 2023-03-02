@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     # OpenAI Config
     openai_api_key: str = "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    openai_organization: str = "org-************************"
 
 
 settings = Settings()

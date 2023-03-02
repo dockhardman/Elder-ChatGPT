@@ -1,6 +1,7 @@
 import logging
 
 import fastapi
+import openai
 from fastapi.responses import PlainTextResponse
 
 from app.config import settings
@@ -14,10 +15,14 @@ def create_app():
         title=settings.app_name,
     )
 
+    @app.on_event("startup")
+    async def on_event_startup():
+        openai.organization = settings.openai_organization
+        openai.api_key = settings.openai_api_key
+
     @app.get("/")
     async def root():
         return PlainTextResponse("OK")
-
 
     # Router
     from app.api.router import router as router_main
