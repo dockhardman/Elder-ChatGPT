@@ -13,6 +13,7 @@ rich = "*"
 pytz = "*"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
+openai = ">=0.27.0"
 
 
 [tool.poetry.group.dev.dependencies]
