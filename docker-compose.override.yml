@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  chat-api-service:
+    image: chat-api-service:0.1.0
+    container_name: chat-api-service
+    build:
+      context: ./chat_api
+      dockerfile: Dockerfile
+    ports:
+      - "8980:80"
+    networks:
+      - chat-network
+    volumes:
+      - ./chat_api/app:/app
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    restart: always
+    tty: true
