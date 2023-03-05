@@ -34,6 +34,8 @@ async def callback(request: Request, x_line_signature: Text = Header(...)):
     logger.warning(line_callback)
     logger.warning(type(line_callback))
     logger.warning(x_line_signature)
+    logger.warning(settings.line_channel_access_token)
+    logger.warning(settings.line_channel_secret)
 
     # handle webhook body
     try:
