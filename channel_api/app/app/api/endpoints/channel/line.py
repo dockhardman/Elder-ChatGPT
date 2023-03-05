@@ -1,6 +1,6 @@
 from typing import Dict, Text
 
-from fastapi import APIRouter, Body, Header, HTTPException
+from fastapi import APIRouter, Body, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -27,11 +27,10 @@ def handle_message(event):
 
 
 @router.post("/callback")
-async def callback(
-    line_callback: bytes = Body(...), x_line_signature: Text = Header(...)
-):
+async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
+    line_callback = await request.body()
     logger.warning(line_callback)
     logger.warning(type(line_callback))
     logger.warning(x_line_signature)
