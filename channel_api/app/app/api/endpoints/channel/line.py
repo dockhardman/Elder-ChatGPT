@@ -25,7 +25,7 @@ handler = WebhookHandler(settings.line_channel_secret)
 def handle_message(event: MessageEvent):
     res = requests.post(
         "http://chat-api-service/api/chat/completion",
-        json=[{"role": "user", "content": "event.message.text"}],
+        json=[{"role": "user", "content": event.message.text}],
     )
     messages = res.json()
     line_bot_api.reply_message(
