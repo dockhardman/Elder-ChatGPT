@@ -21,6 +21,8 @@ handler = WebhookHandler(settings.line_channel_secret)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    logger.warning(event)
+    logger.warning(type(event))
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text=event.message.text)
     )
@@ -34,8 +36,6 @@ async def callback(request: Request, x_line_signature: Text = Header(...)):
     logger.warning(line_callback)
     logger.warning(type(line_callback))
     logger.warning(x_line_signature)
-    logger.warning(settings.line_channel_access_token)
-    logger.warning(settings.line_channel_secret)
 
     # handle webhook body
     try:
