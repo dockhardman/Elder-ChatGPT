@@ -28,7 +28,7 @@ def handle_message(event):
 
 @router.post("/callback")
 async def callback(
-    line_callback: Text = Body(...), x_line_signature: Text = Header(...)
+    line_callback: bytes = Body(...), x_line_signature: Text = Header(...)
 ):
     """Line callback endpoint."""
 
