@@ -1,37 +1,20 @@
-from typing import Dict, List, Text, TypedDict, Union
+from typing import Dict, List, Text, Union
 
 import openai
 from fastapi import APIRouter, Body, Path
 from fastapi.responses import JSONResponse
 from openai.api_resources.model import Model
 from openai.openai_object import OpenAIObject
-from pydantic import BaseModel
+
+from app.schemas.chat import (
+    ChatCompletionCall,
+    ChatCompletionResponse,
+    ChatMessage,
+    ModelsListResult,
+)
 
 
 router = APIRouter()
-
-
-class ModelsListResult(TypedDict):
-    object: Text
-    data: List["Model"]
-
-
-class ChatMessage(BaseModel):
-    role: Text
-    content: Text
-
-
-class ChatMessageUser(ChatMessage):
-    role: Text = "user"
-
-
-class ChatMessageAssistant(ChatMessage):
-    role: Text = "assistant"
-
-
-class ChatCompletionCall(BaseModel):
-    model: Text = "gpt-3.5-turbo"
-    messages: List[ChatMessage]
 
 
 @router.get("/status")
@@ -60,7 +43,9 @@ async def model(model: Text = Path(..., example="ada")):
     return JSONResponse(models_data)
 
 
-@router.post("/completion")
+@router.post(
+    "/completion", response_class=JSONResponse, response_model=List[ChatMessage]
+)
 async def chat_completion(
     chat_call: Union[ChatCompletionCall, List[ChatMessage]] = Body(
         ..., example=[{"role": "user", "content": "hello"}]
@@ -74,6 +59,7 @@ async def chat_completion(
     completion_result: "OpenAIObject" = await openai.ChatCompletion.acreate(
         **chat_call.dict()
     )
-    completion_data: Dict = completion_result.to_dict_recursive()
+    completion_res: ChatCompletionResponse = completion_result.to_dict_recursive()
+    messages_res = [choice["message"] for choice in completion_res["choices"]]
 
-    return JSONResponse(completion_data)
+    return messages_res
