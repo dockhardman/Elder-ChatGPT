@@ -30,7 +30,7 @@ def handle_message(event):
 async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
-    line_callback = await request.body()
+    line_callback = (await request.body()).decode("utf-8")
     logger.warning(line_callback)
     logger.warning(type(line_callback))
     logger.warning(x_line_signature)
