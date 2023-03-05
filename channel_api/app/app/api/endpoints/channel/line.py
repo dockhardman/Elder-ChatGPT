@@ -10,7 +10,7 @@ from linebot.models import (
     TextSendMessage,
 )
 
-from app.config import settings
+from app.config import logger, settings
 
 router = APIRouter()
 
@@ -28,9 +28,13 @@ def handle_message(event):
 
 @router.post("/callback")
 async def callback(
-    line_callback: Dict = Body(...), x_line_signature: Text = Header(...)
+    line_callback: Text = Body(...), x_line_signature: Text = Header(...)
 ):
     """Line callback endpoint."""
+
+    logger.warning(line_callback)
+    logger.warning(type(line_callback))
+    logger.warning(x_line_signature)
 
     # handle webhook body
     try:
