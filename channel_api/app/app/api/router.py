@@ -1,8 +1,16 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints.chat.endpoint import router as chat_router
+from app.config import logger
 
 
 router = APIRouter()
 
-router.include_router(chat_router, prefix="/chat", tags=["chat"])
+# Channel Line
+try:
+    from app.api.endpoints.channel.line import router as line_router
+
+    router.include_router(line_router, prefix="/line", tags=["line"])
+    logger.info("Line router is loaded.")
+
+except ImportError:
+    logger.info("Line router is not loaded.")

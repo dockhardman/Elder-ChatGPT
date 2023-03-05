@@ -19,6 +19,9 @@ def create_app():
         return PlainTextResponse("OK")
 
     # Router
+    from app.api.router import router
+
+    app.include_router(router, prefix=f"/channel")
 
     return app
 
