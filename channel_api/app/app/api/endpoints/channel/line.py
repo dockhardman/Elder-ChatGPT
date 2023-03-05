@@ -1,6 +1,6 @@
-from typing import Dict, Text
+from typing import Text
 
-from fastapi import APIRouter, Body, Header, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -9,8 +9,10 @@ from linebot.models import (
     TextMessage,
     TextSendMessage,
 )
+import requests
 
-from app.config import logger, settings
+from app.config import settings
+
 
 router = APIRouter()
 
@@ -20,11 +22,14 @@ handler = WebhookHandler(settings.line_channel_secret)
 
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    logger.warning(event)
-    logger.warning(type(event))
+def handle_message(event: MessageEvent):
+    res = requests.post(
+        "http://chat-api-service/api/chat/completion",
+        json=[{"role": "user", "content": "event.message.text"}],
+    )
+    messages = res.json()
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=event.message.text)
+        event.reply_token, TextSendMessage(text=messages[-1]["content"].strip())
     )
 
 
@@ -32,14 +37,13 @@ def handle_message(event):
 async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
-    line_callback = (await request.body()).decode("utf-8")
-    logger.warning(line_callback)
-    logger.warning(type(line_callback))
-    logger.warning(x_line_signature)
+    # get request body as text
+    line_callback_data = await request.body()
+    line_callback_str = line_callback_data.decode("utf-8")
 
     # handle webhook body
     try:
-        handler.handle(line_callback, x_line_signature)
+        handler.handle(line_callback_str, x_line_signature)
     except InvalidSignatureError:
         print(
             "Invalid signature. Please check your channel access token/channel secret."
