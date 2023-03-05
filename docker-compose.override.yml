@@ -29,6 +29,9 @@ services:
     build:
       context: ./channel_api
       dockerfile: Dockerfile
+    environment:
+      - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
+      - line_channel_secret=${line_channel_secret:-********************************}
     ports:
       - "8981:80"
     networks:
