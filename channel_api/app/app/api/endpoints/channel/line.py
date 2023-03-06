@@ -1,6 +1,6 @@
 from typing import Text
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Body, Header, HTTPException
 from fastapi.responses import PlainTextResponse
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -11,8 +11,8 @@ from linebot.models import (
 )
 import requests
 
-from app.config import settings
-
+from app.config import logger, settings
+from app.schemas.channel.line import LineCallback
 
 router = APIRouter()
 
@@ -34,18 +34,20 @@ def handle_message(event: MessageEvent):
 
 
 @router.post("/callback")
-async def callback(request: Request, x_line_signature: Text = Header(...)):
+async def callback(
+    line_callback: LineCallback = Body(...), x_line_signature: Text = Header(...)
+):
     """Line callback endpoint."""
 
     # get request body as text
-    line_callback_data = await request.body()
-    line_callback_str = line_callback_data.decode("utf-8")
+    line_callback_str = line_callback.json()
 
     # handle webhook body
     try:
         handler.handle(line_callback_str, x_line_signature)
-    except InvalidSignatureError:
-        print(
+    except InvalidSignatureError as e:
+        logger.exception(e)
+        logger.error(
             "Invalid signature. Please check your channel access token/channel secret."
         )
         raise HTTPException(status_code=400)
