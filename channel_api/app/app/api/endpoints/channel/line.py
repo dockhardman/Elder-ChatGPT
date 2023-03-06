@@ -1,6 +1,7 @@
+import json
 from typing import Text
 
-from fastapi import APIRouter, Body, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -34,13 +35,15 @@ def handle_message(event: MessageEvent):
 
 
 @router.post("/callback")
-async def callback(
-    line_callback: LineCallback = Body(...), x_line_signature: Text = Header(...)
-):
+async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
     # get request body as text
-    line_callback_str = line_callback.json()
+    line_callback_data = await request.body()
+    line_callback = LineCallback(**json.loads(line_callback_data))
+    logger.debug(f"line_callback: {line_callback.json(ensure_ascii=False)}")
+
+    line_callback_str = line_callback_data.decode("utf-8")
 
     # handle webhook body
     try:
