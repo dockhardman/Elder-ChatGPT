@@ -9,13 +9,20 @@ packages = [{include = "channel_api"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8.0,<4.0.0"
-fastapi = "*"
 pytz = "*"
 requests = "*"
 rich = "*"
 urllib3 = "*"
-uvicorn = {extras = ["standard"], version = "^0.20.0"}
+asyncpg = "*"
+cryptography = "*"
+databases = "*"
+fastapi = "*"
 line-bot-sdk = {version = "*", optional = true}
+ormar = {extras = ["postgresql"], version = "^0.12.1"}
+psycopg2-binary = "*"
+pyassorted = "*"
+sqlalchemy = "*"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
 
 [tool.poetry.extras]
 all = ["line-bot-sdk"]
