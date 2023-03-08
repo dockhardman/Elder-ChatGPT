@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Text
 
@@ -14,6 +15,9 @@ import requests
 
 from app.config import logger, settings
 from app.schemas.channel.line import LineCallback
+from app.schemas.tracker import Message as TrackerMessage
+from app.utils.datetime import datetime_now
+
 
 router = APIRouter()
 
@@ -32,6 +36,16 @@ def handle_message(event: MessageEvent):
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text=messages[-1]["content"].strip())
     )
+
+    user_message = TrackerMessage(
+        message_type=event.message.type,
+        message_text=event.message.text,
+        source_type=event.source.type,
+        source_user_id=event.source.get("userId", None),
+        message_datetime=datetime_now(tz=settings.app_timezone),
+    )
+    loop = asyncio.get_running_loop()
+    loop.run_until_complete(user_message.save())
 
 
 @router.post("/callback")

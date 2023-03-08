@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # General
     app_name: str = "Channel-API"
     logger_name: str = "channel_api"
+    app_timezone: str = "Asia/Taipei"
 
     # Line Config
     line_channel_access_token: Text = ""
