@@ -55,9 +55,9 @@ def handle_message(event: MessageEvent):
         source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
-    uvicorn_logger.debug(user_message)
-    loop = asyncio.get_running_loop()
-    loop.run_until_complete(user_message.save())
+    # uvicorn_logger.debug(user_message)
+    # loop = asyncio.get_running_loop()
+    # loop.run_until_complete(user_message.save())
 
 
 @router.post("/callback")
