@@ -52,5 +52,7 @@ class LoggingConfig(BaseSettings):
     }
 
 
+logging_config = LoggingConfig()
+logging.config.dictConfig(logging_config)
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
