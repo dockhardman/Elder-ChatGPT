@@ -3,7 +3,7 @@ import logging
 import fastapi
 from fastapi.responses import PlainTextResponse
 
-from app.config import settings
+from app.config import logger, settings, uvicorn_logger
 
 
 logger = logging.getLogger(settings.app_logger_name)
@@ -16,6 +16,8 @@ def create_app():
 
     @app.get("/")
     async def root():
+        logger.debug("OK")
+        uvicorn_logger.debug("OK")
         return PlainTextResponse("OK")
 
     # Router
