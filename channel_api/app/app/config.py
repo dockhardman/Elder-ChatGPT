@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     # Logging Config
     app_logger_name: str = "channel_api"
+    app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
 
     # Line Config
@@ -25,5 +26,31 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+class LoggingConfig(BaseSettings):
+    disable_existing_loggers = False
+    formatters = {
+        "base_formatter": {
+            "format": "%(asctime)s %(levelname)-8s %(name)s  - %(message)s",
+        },
+        "message_formatter": {"format": "%(message)s"},
+    }
+    handlers = {
+        "console_handler": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "base_formatter",
+        }
+    }
+    loggers = {
+        settings.app_logger_name: {
+            "level": settings.app_logger_level,
+            "handlers": ["console_handler"],
+            "propagate": True,
+        },
+    }
+
+
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
