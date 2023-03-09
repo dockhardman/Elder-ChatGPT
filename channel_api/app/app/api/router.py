@@ -12,5 +12,6 @@ try:
     router.include_router(line_router, prefix="/line", tags=["line"])
     logger.info("Line router is loaded.")
 
-except ImportError:
-    logger.info("Line router is not loaded.")
+except ImportError as e:
+    logger.exception(e)
+    logger.warning("Line router is not loaded.")
