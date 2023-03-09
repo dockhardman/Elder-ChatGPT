@@ -28,17 +28,24 @@ handler = WebhookHandler(settings.line_channel_secret)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event: MessageEvent):
-    uvicorn_logger.debug(event)
+    logger.debug(f"Line event {type(event)}: {event}")
+
+    chat_call_messages = [{"role": "user", "content": event.message.text}]
+    logger.debug(f"Call chat messages: {chat_call_messages}")
+
     res = requests.post(
         "http://chat-api-service/api/chat/completion",
-        json=[{"role": "user", "content": event.message.text}],
+        json=chat_call_messages,
     )
     messages = res.json()
-    uvicorn_logger.debug(messages)
+    logger.debug(f"Return chat messages: {messages}")
+
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text=messages[-1]["content"].strip())
     )
 
+    logger.debug(f"Line event message type: {type(event.message)}")
+    logger.debug(f"Line event source type: {type(event.source)}")
     user_message = TrackerMessage(
         message_type=event.message.type,
         message_text=event.message.text,
@@ -55,8 +62,6 @@ def handle_message(event: MessageEvent):
 async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
-    uvicorn_logger.debug(request)
-    uvicorn_logger.debug(x_line_signature)
     # get request body as text
     line_callback_data = await request.body()
     line_callback = LineCallback(**json.loads(line_callback_data))
