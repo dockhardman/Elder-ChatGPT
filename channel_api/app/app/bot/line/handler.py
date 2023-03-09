@@ -1,10 +1,11 @@
-from typing import Optional, Text
+import inspect
+from typing import Callable, Optional, Text, Tuple
 
 from linebot import WebhookHandler
-from linebot.models.events import MessageEvent
-from linebot.utils import LOGGER
 from linebot.models.events import Event
+from linebot.models.events import MessageEvent
 from linebot.models.messages import Message
+from linebot.utils import LOGGER, PY3
 from pyassorted.asyncio.executor import run_func
 
 
@@ -28,6 +29,28 @@ def get_handler_key(event: "Event", message: Optional["Message"] = None) -> Text
         return event.__name__
     else:
         return event.__name__ + "_" + message.__name__
+
+
+def get_args_count(func: Callable) -> Tuple[bool, int]:
+    """Get arguments count.
+
+    Parameters
+    ----------
+    func : Callable
+        The function.
+
+    Returns
+    -------
+    Tuple[bool, int]
+        The arguments count.
+    """
+
+    if PY3:
+        arg_spec = inspect.getfullargspec(func)
+        return (arg_spec.varargs is not None, len(arg_spec.args))
+    else:
+        arg_spec = inspect.getargspec(func)
+        return (arg_spec.varargs is not None, len(arg_spec.args))
 
 
 class AsyncWebhookHandler(WebhookHandler):
@@ -80,7 +103,7 @@ class AsyncWebhookHandler(WebhookHandler):
             The Line payload.
         """
 
-        (has_varargs, args_count) = cls.__get_args_count(func)
+        (has_varargs, args_count) = get_args_count(func)
         if has_varargs or args_count == 2:
             await run_func(func, event, payload.destination)
         elif args_count == 1:
