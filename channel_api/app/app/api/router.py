@@ -13,5 +13,4 @@ try:
     logger.info("Line router is loaded.")
 
 except ImportError as e:
-    logger.exception(e)
-    logger.warning("Line router is not loaded.")
+    logger.warning(f"Line router is not loaded, cause by: {e}")
