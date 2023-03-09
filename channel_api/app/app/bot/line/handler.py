@@ -1,9 +1,33 @@
-from typing import Text
+from typing import Optional, Text
 
 from linebot import WebhookHandler
 from linebot.models.events import MessageEvent
 from linebot.utils import LOGGER
+from linebot.models.events import Event
+from linebot.models.messages import Message
 from pyassorted.asyncio.executor import run_func
+
+
+def get_handler_key(event: "Event", message: Optional["Message"] = None) -> Text:
+    """Get handler key.
+
+    Parameters
+    ----------
+    event : Event
+        The Line event.
+    message : Optional[&quot;Message&quot;], optional
+        The Line message, by default None
+
+    Returns
+    -------
+    Text
+        The handler key.
+    """
+
+    if message is None:
+        return event.__name__
+    else:
+        return event.__name__ + "_" + message.__name__
 
 
 class AsyncWebhookHandler(WebhookHandler):
@@ -27,11 +51,11 @@ class AsyncWebhookHandler(WebhookHandler):
             key = None
 
             if isinstance(event, MessageEvent):
-                key = self.__get_handler_key(event.__class__, event.message.__class__)
+                key = get_handler_key(event.__class__, event.message.__class__)
                 func = self._handlers.get(key, None)
 
             if func is None:
-                key = self.__get_handler_key(event.__class__)
+                key = get_handler_key(event.__class__)
                 func = self._handlers.get(key, None)
 
             if func is None:
