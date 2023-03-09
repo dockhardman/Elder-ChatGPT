@@ -1,9 +1,11 @@
 import json
 from typing import Text
 
+import aiohttp
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from linebot import AsyncLineBotApi
+from linebot.aiohttp_async_http_client import AiohttpAsyncHttpClient
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent,
@@ -23,7 +25,10 @@ from app.utils.datetime import datetime_now
 router = APIRouter()
 
 
-line_bot_api = AsyncLineBotApi(settings.line_channel_access_token)
+line_bot_api = AsyncLineBotApi(
+    settings.line_channel_access_token,
+    async_http_client=AiohttpAsyncHttpClient(aiohttp.ClientSession()),
+)
 handler = AsyncWebhookHandler(settings.line_channel_secret)
 
 
