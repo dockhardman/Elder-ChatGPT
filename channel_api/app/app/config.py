@@ -29,6 +29,7 @@ settings = Settings()
 
 
 class LoggingConfig(BaseSettings):
+    version = 1
     disable_existing_loggers = False
     formatters = {
         "base_formatter": {
