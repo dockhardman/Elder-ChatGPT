@@ -8,6 +8,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent,
+    SourceUser,
     TextMessage,
     TextSendMessage,
 )
@@ -30,7 +31,10 @@ handler = WebhookHandler(settings.line_channel_secret)
 def handle_message(event: MessageEvent):
     logger.debug(f"Line event {type(event)}: {event}")
 
-    chat_call_messages = [{"role": "user", "content": event.message.text}]
+    line_message: "TextMessage" = event.message
+    line_source: "SourceUser" = event.source
+
+    chat_call_messages = [{"role": "user", "content": line_message.text}]
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
     res = requests.post(
@@ -44,13 +48,11 @@ def handle_message(event: MessageEvent):
         event.reply_token, TextSendMessage(text=messages[-1]["content"].strip())
     )
 
-    logger.debug(f"Line event message type: {type(event.message)}")
-    logger.debug(f"Line event source type: {type(event.source)}")
     user_message = TrackerMessage(
-        message_type=event.message.type,
-        message_text=event.message.text,
-        source_type=event.source.type,
-        source_user_id=event.source.get("userId", None),
+        message_type=line_message.type,
+        message_text=line_message.text,
+        source_type=line_source.type,
+        source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
     uvicorn_logger.debug(user_message)
