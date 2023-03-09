@@ -55,6 +55,8 @@ def handle_message(event: MessageEvent):
 async def callback(request: Request, x_line_signature: Text = Header(...)):
     """Line callback endpoint."""
 
+    uvicorn_logger.debug(request)
+    uvicorn_logger.debug(x_line_signature)
     # get request body as text
     line_callback_data = await request.body()
     line_callback = LineCallback(**json.loads(line_callback_data))
