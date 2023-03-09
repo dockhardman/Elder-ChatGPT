@@ -7,8 +7,11 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     # General
     app_name: str = "Channel-API"
-    logger_name: str = "channel_api"
     app_timezone: str = "Asia/Taipei"
+
+    # Logging Config
+    app_logger_name: str = "channel_api"
+    uvicorn_logger_name: str = "uvicorn.error"
 
     # Line Config
     line_channel_access_token: Text = ""
@@ -22,4 +25,5 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-logger = logging.getLogger(settings.logger_name)
+logger = logging.getLogger(settings.app_logger_name)
+uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)

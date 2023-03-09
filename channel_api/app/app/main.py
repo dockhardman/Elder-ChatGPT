@@ -6,7 +6,7 @@ from fastapi.responses import PlainTextResponse
 from app.config import settings
 
 
-logger = logging.getLogger(settings.logger_name)
+logger = logging.getLogger(settings.app_logger_name)
 
 
 def create_app():
