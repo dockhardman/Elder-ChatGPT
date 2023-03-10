@@ -7,6 +7,8 @@ services:
     build:
       context: ./chat_api
       dockerfile: Dockerfile
+    depends_on:
+      - tracker-store-service
     environment:
       - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - openai_organization=${openai_organization:-org-************************}
@@ -29,6 +31,8 @@ services:
     build:
       context: ./channel_api
       dockerfile: Dockerfile
+    depends_on:
+      - tracker-store-service
     environment:
       - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
       - line_channel_secret=${line_channel_secret:-********************************}
