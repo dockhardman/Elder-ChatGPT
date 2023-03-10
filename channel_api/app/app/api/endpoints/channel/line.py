@@ -47,7 +47,6 @@ async def handle_message(event: MessageEvent):
         source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
-    await user_message.save()
     records = (
         await TrackerMessage.objects.limit(10)
         .filter(source_user_id=line_source.user_id)
@@ -57,7 +56,7 @@ async def handle_message(event: MessageEvent):
 
     # Call Chat API
     chat_call_messages = []
-    for record in records:
+    for record in records[::-1]:
         if record.source_type == "user" and record.message_type == "text":
             _message = {"role": "user", "content": record.message_text}
             chat_call_messages.append(_message)
@@ -78,7 +77,7 @@ async def handle_message(event: MessageEvent):
     # Reply Line message
     await line_bot_api.reply_message(event.reply_token, TextSendMessage(text=bot_text))
 
-    # Save bot message
+    # Save records
     bot_message = TrackerMessage(
         message_type="text",
         message_text=bot_text,
@@ -86,6 +85,7 @@ async def handle_message(event: MessageEvent):
         source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
+    await user_message.save()
     await bot_message.save()
 
 
