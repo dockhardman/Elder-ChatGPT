@@ -31,6 +31,7 @@ def create_app():
             await message_database_.connect()
         logger.debug("Message database is connected.")
         create_message_database()
+        logger.debug("Message metadata is created.")
 
     @app.on_event("shutdown")
     async def shutdown() -> None:
