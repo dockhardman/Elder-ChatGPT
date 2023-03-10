@@ -17,7 +17,7 @@ class Message(ormar.Model):
         tablename = "TrackerStoreMessage"
 
     id: int = ormar.Integer(primary_key=True)
-    message_type: Text = ormar.String(nullable=False, max_length=32)
+    message_type: Text = ormar.String(nullable=False, index=True, max_length=32)
     message_text: Optional[Text] = ormar.String(
         nullable=True,
         default=None,
@@ -25,9 +25,13 @@ class Message(ormar.Model):
         encrypt_secret=settings.tracker_store_message_encrypt_secret,
         encrypt_backend=ormar.EncryptBackends.FERNET,
     )
-    source_type: Text = ormar.String(nullable=False, max_length=32)
-    source_user_id: Text = ormar.String(nullable=True, default=None, max_length=64)
-    message_datetime: datetime.datetime = ormar.DateTime(nullable=False, timezone=True)
+    source_type: Text = ormar.String(nullable=False, index=True, max_length=32)
+    source_user_id: Text = ormar.String(
+        nullable=True, default=None, index=True, max_length=64
+    )
+    message_datetime: datetime.datetime = ormar.DateTime(
+        nullable=False, index=True, timezone=True
+    )
 
 
 if __name__ == "__main__":
