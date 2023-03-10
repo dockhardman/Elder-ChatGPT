@@ -29,6 +29,7 @@ def create_app():
         message_database_: "databases.Database" = app.state.message_database
         if not message_database_.is_connected:
             await message_database_.connect()
+        logger.debug("Message database is connected.")
         create_message_database()
 
     @app.on_event("shutdown")
@@ -36,6 +37,7 @@ def create_app():
         message_database_: "databases.Database" = app.state.message_database
         if message_database_.is_connected:
             await message_database_.disconnect()
+        logger.debug("Message database is disconnected.")
 
     # Root Route
     @app.get("/")
