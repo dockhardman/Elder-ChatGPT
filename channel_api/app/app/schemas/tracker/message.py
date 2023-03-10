@@ -25,7 +25,9 @@ class Message(ormar.Model):
         encrypt_secret=settings.tracker_store_message_encrypt_secret,
         encrypt_backend=ormar.EncryptBackends.FERNET,
     )
-    source_type: Text = ormar.String(nullable=False, index=True, max_length=32)
+    source_type: Text = ormar.String(
+        nullable=False, index=True, max_length=32
+    )  # user, bot
     source_user_id: Text = ormar.String(
         nullable=True, default=None, index=True, max_length=64
     )

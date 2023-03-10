@@ -39,28 +39,7 @@ async def handle_message(event: MessageEvent):
     line_message: "TextMessage" = event.message
     line_source: "SourceUser" = event.source
 
-    records = (
-        await TrackerMessage.objects.limit(10)
-        .filter(source_user_id=line_source.user_id)
-        .order_by(TrackerMessage.message_datetime.desc())
-        .all()
-    )
-    logger.debug(f"Records: {records}")
-
-    chat_call_messages = [{"role": "user", "content": line_message.text}]
-    logger.debug(f"Call chat messages: {chat_call_messages}")
-
-    res = requests.post(
-        "http://chat-api-service/api/chat/completion",
-        json=chat_call_messages,
-    )
-    messages = res.json()
-    logger.debug(f"Return chat messages: {messages}")
-
-    await line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=messages[-1]["content"].strip())
-    )
-
+    # Collect user message and records
     user_message = TrackerMessage(
         message_type=line_message.type,
         message_text=line_message.text,
@@ -69,6 +48,45 @@ async def handle_message(event: MessageEvent):
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
     await user_message.save()
+    records = (
+        await TrackerMessage.objects.limit(10)
+        .filter(source_user_id=line_source.user_id)
+        .order_by(TrackerMessage.message_datetime.desc())
+        .all()
+    )
+
+    # Call Chat API
+    chat_call_messages = []
+    for record in records:
+        if record.source_type == "user" and record.message_type == "text":
+            _message = {"role": "user", "content": record.message_text}
+            chat_call_messages.append(_message)
+        elif record.source_type == "bot" and record.message_type == "text":
+            _message = {"role": "assistant", "content": record.message_text}
+            chat_call_messages.append(_message)
+    chat_call_messages = [{"role": "user", "content": line_message.text}]
+    logger.debug(f"Call chat messages: {chat_call_messages}")
+
+    res = requests.post(
+        "http://chat-api-service/api/chat/completion",
+        json=chat_call_messages,
+    )
+    messages = res.json()
+    bot_text = messages[-1]["content"].strip()
+    logger.debug(f"Return chat messages: {messages}")
+
+    # Reply Line message
+    await line_bot_api.reply_message(event.reply_token, TextSendMessage(text=bot_text))
+
+    # Save bot message
+    bot_message = TrackerMessage(
+        message_type="text",
+        message_text=bot_text,
+        source_type="bot",
+        source_user_id=line_source.user_id,
+        message_datetime=datetime_now(tz=settings.app_timezone),
+    )
+    await bot_message.save()
 
 
 @router.post("/callback")
