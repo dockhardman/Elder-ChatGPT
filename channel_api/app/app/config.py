@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Tracker Config
     tracker_store_service_url: Text = (
-        "postgresql+aiopg:///postgres:default@tracker-store-service:5452/postgres"
+        "postgresql://postgres:default@tracker-store-service:5432/postgres"
     )
     tracker_store_message_encrypt_secret = "secret456"
 
