@@ -7,6 +7,8 @@ services:
     build:
       context: ./chat_api
       dockerfile: Dockerfile
+    depends_on:
+      - tracker-store-service
     environment:
       - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - openai_organization=${openai_organization:-org-************************}
@@ -29,6 +31,8 @@ services:
     build:
       context: ./channel_api
       dockerfile: Dockerfile
+    depends_on:
+      - tracker-store-service
     environment:
       - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
       - line_channel_secret=${line_channel_secret:-********************************}
@@ -44,3 +48,20 @@ services:
           memory: 500M
     restart: always
     tty: true
+
+  tracker-store-service:
+    image: postgres:11-bullseye
+    container_name: tracker-store-service
+    environment:
+      - POSTGRES_PASSWORD=${TRACKER_STORE_PASSWORD:-default}
+    volumes:
+      - ./tracker_store/data/:/var/lib/postgresql/data/
+    ports:
+      - "15432:5432"
+    networks:
+      - chat-network
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    restart: always
