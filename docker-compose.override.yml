@@ -46,7 +46,7 @@ services:
     tty: true
 
   tracker-store-service:
-    image: postgres:11-alpine
+    image: postgres:11-bullseye
     container_name: tracker-store-service
     environment:
       - POSTGRES_PASSWORD=${TRACKER_STORE_PASSWORD:-default}
