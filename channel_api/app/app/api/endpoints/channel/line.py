@@ -42,6 +42,7 @@ async def handle_message(event: MessageEvent):
     records = (
         await TrackerMessage.objects.limit(10)
         .filter(source_user_id=line_source.user_id)
+        .order_by(TrackerMessage.message_datetime.desc())
         .all()
     )
     logger.debug(f"Records: {records}")
