@@ -64,7 +64,7 @@ async def handle_message(event: MessageEvent):
         elif record.source_type == "bot" and record.message_type == "text":
             _message = {"role": "assistant", "content": record.message_text}
             chat_call_messages.append(_message)
-    chat_call_messages = [{"role": "user", "content": line_message.text}]
+    chat_call_messages.append({"role": "user", "content": line_message.text})
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
     res = requests.post(
