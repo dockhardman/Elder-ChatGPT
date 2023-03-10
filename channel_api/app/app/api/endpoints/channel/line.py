@@ -39,6 +39,13 @@ async def handle_message(event: MessageEvent):
     line_message: "TextMessage" = event.message
     line_source: "SourceUser" = event.source
 
+    records = (
+        await TrackerMessage.objects.limit(10)
+        .filter(source_user_id=line_source.user_id)
+        .all()
+    )
+    logger.debug(f"Records: {records}")
+
     chat_call_messages = [{"role": "user", "content": line_message.text}]
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
