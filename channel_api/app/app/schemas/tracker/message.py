@@ -1,14 +1,10 @@
-import databases
 import datetime
 import ormar
 import sqlalchemy
 from typing import Optional, Text
 
 from app.config import settings
-
-
-message_database = databases.Database(settings.tracker_store_service_url)
-message_metadata = sqlalchemy.MetaData()
+from app.db.tracker_store import message_metadata, message_database
 
 
 class MessageBaseMeta(ormar.ModelMeta):
