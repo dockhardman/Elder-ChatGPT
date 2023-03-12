@@ -13,10 +13,10 @@ from linebot.models import (
     TextMessage,
     TextSendMessage,
 )
-import requests
 
 from app.bot.line.handler import AsyncWebhookHandler
 from app.config import logger, settings
+from app.resources.chat import requests_chat_api
 from app.schemas.channel import LineCallback
 from app.schemas.chat import Message
 from app.schemas.tracker import Message as TrackerMessage
@@ -100,21 +100,18 @@ async def handle_message(event: MessageEvent):
     chat_call_messages.append(Message(role="user", content=line_message.text))
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
-    res = requests.post(
-        "http://chat-api-service/api/chat/completion",
-        json=chat_call_messages,
-    )
-    messages = res.json()
-    bot_text = messages[-1]["content"].strip()
-    logger.debug(f"Return chat messages: {messages}")
+    res_message = await requests_chat_api(messages=chat_call_messages)
+    logger.debug(f"Return chat messages: {res_message}")
 
     # Reply Line message
-    await line_bot_api.reply_message(event.reply_token, TextSendMessage(text=bot_text))
+    await line_bot_api.reply_message(
+        event.reply_token, TextSendMessage(text=res_message["content"])
+    )
 
     # Save bot message records
     bot_message = TrackerMessage(
         message_type="text",
-        message_text=bot_text,
+        message_text=res_message["content"],
         source_type="bot",
         source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
