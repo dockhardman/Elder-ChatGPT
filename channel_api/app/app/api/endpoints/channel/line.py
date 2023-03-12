@@ -1,5 +1,5 @@
 import json
-from typing import List, Text
+from typing import List, Optional, Text
 
 import aiohttp
 from fastapi import APIRouter, Header, HTTPException, Request
@@ -34,7 +34,9 @@ handler = AsyncWebhookHandler(settings.line_channel_secret)
 
 
 async def get_user_records(
-    source_user_id: Text, source_group_id: Text, record_length: int = 10
+    source_user_id: Text,
+    source_group_id: Optional[Text] = None,
+    record_length: int = 10,
 ) -> List["TrackerMessage"]:
     records = (
         await TrackerMessage.objects.limit(record_length)
