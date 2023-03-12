@@ -38,6 +38,23 @@ async def get_user_records(
     source_group_id: Optional[Text] = None,
     record_length: int = 10,
 ) -> List["TrackerMessage"]:
+    """Get user records.
+
+    Parameters
+    ----------
+    source_user_id : Text
+        User ID.
+    source_group_id : Optional[Text], optional
+        Group ID, by default None
+    record_length : int, optional
+        Record length, by default 10
+
+    Returns
+    -------
+    List["TrackerMessage"]
+        User records.
+    """
+
     records = (
         await TrackerMessage.objects.limit(record_length)
         .filter(source_user_id=source_user_id)
@@ -49,6 +66,14 @@ async def get_user_records(
 
 @handler.add(MessageEvent, message=TextMessage)
 async def handle_message(event: MessageEvent):
+    """Handle Line text message.
+
+    Parameters
+    ----------
+    event : MessageEvent
+        Line message event.
+    """
+
     logger.debug(f"Line event {type(event)}: {event}")
 
     line_message: "TextMessage" = event.message
@@ -99,7 +124,15 @@ async def handle_message(event: MessageEvent):
 
 @router.post("/callback")
 async def callback(request: Request, x_line_signature: Text = Header(...)):
-    """Line callback endpoint."""
+    """Line callback endpoint.
+
+    Parameters
+    ----------
+    request : Request
+        FastAPI request.
+    x_line_signature : Text, optional
+        Line signature, must be set in header.
+    """
 
     # get request body as text
     line_callback_data = await request.body()
