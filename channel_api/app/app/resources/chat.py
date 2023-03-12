@@ -9,7 +9,7 @@ from app.schemas.chat import Message
 
 async def requests_chat_api(
     messages: List[Message], url: Text = settings.chat_api_service_url
-) -> Message:
+) -> List[Message]:
     """Requests chat API.
 
     Parameters
@@ -28,7 +28,6 @@ async def requests_chat_api(
     async with aiohttp.ClientSession() as session:
         async with session.post(URL(url), json=messages) as resp:
             resp.raise_for_status()
-            return_message: Message = await resp.json()
+            return_messages: List[Message] = await resp.json()
 
-    return_message["content"] = return_message["content"].strip()
-    return return_message
+    return return_messages

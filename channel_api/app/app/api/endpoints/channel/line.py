@@ -98,23 +98,25 @@ async def handle_message(event: MessageEvent):
     chat_call_messages.append(Message(role="user", content=line_message.text))
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
-    res_message = await requests_chat_api(messages=chat_call_messages)
-    logger.debug(f"Return chat messages: {res_message}")
+    res_messages = await requests_chat_api(messages=chat_call_messages)
+    logger.debug(f"Return chat messages: {res_messages}")
 
     # Reply Line message
-    await line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=res_message["content"])
-    )
+    for res_message in res_messages:
+        await line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=res_message["content"].strip())
+        )
 
     # Save bot message records
-    bot_message = TrackerMessage(
-        message_type="text",
-        message_text=res_message["content"],
-        source_type="bot",
-        source_user_id=line_source.user_id,
-        message_datetime=datetime_now(tz=settings.app_timezone),
-    )
-    await bot_message.save()
+    for res_message in res_messages:
+        bot_message = TrackerMessage(
+            message_type="text",
+            message_text=res_message["content"].strip(),
+            source_type="bot",
+            source_user_id=line_source.user_id,
+            message_datetime=datetime_now(tz=settings.app_timezone),
+        )
+        await bot_message.save()
 
 
 @router.post("/callback")
