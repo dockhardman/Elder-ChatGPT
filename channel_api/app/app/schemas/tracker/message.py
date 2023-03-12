@@ -1,10 +1,14 @@
 import datetime
 import ormar
 import sqlalchemy
-from typing import Optional, Text
+from typing import Optional, Text, TYPE_CHECKING
 
 from app.config import settings
 from app.db.tracker_store import message_metadata, message_database
+from app.utils.datetime import datetime_now
+
+if TYPE_CHECKING:
+    from linebot.models import SourceUser, TextMessage
 
 
 class MessageBaseMeta(ormar.ModelMeta):
@@ -34,6 +38,17 @@ class Message(ormar.Model):
     message_datetime: datetime.datetime = ormar.DateTime(
         nullable=False, index=True, timezone=True
     )
+
+    @classmethod
+    def from_line_text_message(cls, text_message: "TextMessage", source: "SourceUser"):
+        message = cls(
+            message_type=text_message.type,
+            message_text=text_message.text,
+            source_type=source.type,
+            source_user_id=source.user_id,
+            message_datetime=datetime_now(tz=settings.app_timezone),
+        )
+        return message
 
 
 if __name__ == "__main__":

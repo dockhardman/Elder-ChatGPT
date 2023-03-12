@@ -1,5 +1,5 @@
 import json
-from typing import Text
+from typing import List, Text
 
 import aiohttp
 from fastapi import APIRouter, Header, HTTPException, Request
@@ -17,7 +17,8 @@ import requests
 
 from app.bot.line.handler import AsyncWebhookHandler
 from app.config import logger, settings
-from app.schemas.channel.line import LineCallback
+from app.schemas.channel import LineCallback
+from app.schemas.chat import Message
 from app.schemas.tracker import Message as TrackerMessage
 from app.utils.datetime import datetime_now
 
@@ -32,6 +33,18 @@ line_bot_api = AsyncLineBotApi(
 handler = AsyncWebhookHandler(settings.line_channel_secret)
 
 
+async def get_user_records(
+    source_user_id: Text, source_group_id: Text, record_length: int = 10
+) -> List["TrackerMessage"]:
+    records = (
+        await TrackerMessage.objects.limit(record_length)
+        .filter(source_user_id=source_user_id)
+        .order_by(TrackerMessage.message_datetime.desc())
+        .all()
+    )
+    return records
+
+
 @handler.add(MessageEvent, message=TextMessage)
 async def handle_message(event: MessageEvent):
     logger.debug(f"Line event {type(event)}: {event}")
@@ -39,31 +52,25 @@ async def handle_message(event: MessageEvent):
     line_message: "TextMessage" = event.message
     line_source: "SourceUser" = event.source
 
-    # Collect user message and records
-    user_message = TrackerMessage(
-        message_type=line_message.type,
-        message_text=line_message.text,
-        source_type=line_source.type,
-        source_user_id=line_source.user_id,
-        message_datetime=datetime_now(tz=settings.app_timezone),
+    # Record user message
+    user_message = TrackerMessage.from_line_text_message(
+        text_message=line_message, source=line_source
     )
-    records = (
-        await TrackerMessage.objects.limit(10)
-        .filter(source_user_id=line_source.user_id)
-        .order_by(TrackerMessage.message_datetime.desc())
-        .all()
-    )
+    await user_message.save()
+
+    # Collect user message records
+    records = await get_user_records(source_user_id=line_source.user_id)
 
     # Call Chat API
-    chat_call_messages = []
+    chat_call_messages: List[Message] = []
     for record in records[::-1]:
         if record.source_type == "user" and record.message_type == "text":
-            _message = {"role": "user", "content": record.message_text}
-            chat_call_messages.append(_message)
+            chat_call_messages.append(Message(role="user", content=record.message_text))
         elif record.source_type == "bot" and record.message_type == "text":
-            _message = {"role": "assistant", "content": record.message_text}
-            chat_call_messages.append(_message)
-    chat_call_messages.append({"role": "user", "content": line_message.text})
+            chat_call_messages.append(
+                Message(role="assistant", content=record.message_text)
+            )
+    chat_call_messages.append(Message(role="user", content=line_message.text))
     logger.debug(f"Call chat messages: {chat_call_messages}")
 
     res = requests.post(
@@ -77,7 +84,7 @@ async def handle_message(event: MessageEvent):
     # Reply Line message
     await line_bot_api.reply_message(event.reply_token, TextSendMessage(text=bot_text))
 
-    # Save records
+    # Save bot message records
     bot_message = TrackerMessage(
         message_type="text",
         message_text=bot_text,
@@ -85,7 +92,6 @@ async def handle_message(event: MessageEvent):
         source_user_id=line_source.user_id,
         message_datetime=datetime_now(tz=settings.app_timezone),
     )
-    await user_message.save()
     await bot_message.save()
 
 
