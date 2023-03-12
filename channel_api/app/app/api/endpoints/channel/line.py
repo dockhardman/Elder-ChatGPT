@@ -79,14 +79,12 @@ async def handle_message(event: MessageEvent):
     line_message: "TextMessage" = event.message
     line_source: "SourceUser" = event.source
 
-    # Record user message
+    # Collect user message records and save new record
     user_message = TrackerMessage.from_line_text_message(
         text_message=line_message, source=line_source
     )
-    await user_message.save()
-
-    # Collect user message records
     records = await get_user_records(source_user_id=line_source.user_id)
+    await user_message.save()
 
     # Call Chat API
     chat_call_messages: List[Message] = []
