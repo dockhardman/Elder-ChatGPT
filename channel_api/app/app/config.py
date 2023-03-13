@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import Text
 
 from pydantic import BaseSettings
@@ -13,6 +14,11 @@ class Settings(BaseSettings):
     app_logger_name: str = "channel_api"
     app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
+
+    log_dir: Text = "log"
+    log_access_filename: Text = "access.log"
+    log_error_filename: Text = "error.log"
+    log_service_filename: Text = "service.log"
 
     # Line Config
     line_channel_access_token: Text = ""
@@ -35,22 +41,54 @@ class LoggingConfig(BaseSettings):
     version = 1
     disable_existing_loggers = False
     formatters = {
-        "base_formatter": {
+        "basic_formatter": {
             "format": "%(asctime)s %(levelname)-8s %(name)s  - %(message)s",
         },
-        "message_formatter": {"format": "%(message)s"},
     }
     handlers = {
         "console_handler": {
-            "level": "DEBUG",
+            "level": settings.app_logger_level,
             "class": "logging.StreamHandler",
-            "formatter": "base_formatter",
-        }
+            "formatter": "basic_formatter",
+        },
+        "file_handler": {
+            "level": settings.app_logger_level,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": (
+                Path(settings.log_dir).joinpath(settings.log_service_filename).resolve()
+            ),
+            "formatter": "basic_formatter",
+            "maxBytes": 2048,
+            "backupCount": 10,
+        },
+        "error_handler": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": (
+                Path(settings.log_dir).joinpath(settings.log_error_filename).resolve()
+            ),
+            "formatter": "basic_formatter",
+        },
+        "access_handler": {
+            "level": settings.app_logger_level,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": (
+                Path(settings.log_dir).joinpath(settings.log_access_filename).resolve()
+            ),
+            "formatter": "basic_formatter",
+            "maxBytes": 2048,
+            "backupCount": 10,
+        },
     }
     loggers = {
         settings.app_logger_name: {
             "level": settings.app_logger_level,
-            "handlers": ["console_handler"],
+            "handlers": ["console_handler", "file_handler", "error_handler"],
+            "propagate": True,
+        },
+        settings.uvicorn_logger_name: {
+            "level": settings.app_logger_level,
+            "handlers": ["console_handler", "access_handler"],
             "propagate": True,
         },
     }
