@@ -48,8 +48,9 @@ class LoggingConfig(BaseSettings):
     handlers = {
         "console_handler": {
             "level": settings.app_logger_level,
-            "class": "logging.StreamHandler",
-            "formatter": "basic_formatter",
+            "class": "rich.logging.RichHandler",
+            "rich_tracebacks": True,
+            "tracebacks_show_locals": False,
         },
         "file_handler": {
             "level": settings.app_logger_level,
@@ -58,7 +59,7 @@ class LoggingConfig(BaseSettings):
                 Path(settings.log_dir).joinpath(settings.log_service_filename).resolve()
             ),
             "formatter": "basic_formatter",
-            "maxBytes": 2048,
+            "maxBytes": 2097152,
             "backupCount": 10,
         },
         "error_handler": {
@@ -76,7 +77,7 @@ class LoggingConfig(BaseSettings):
                 Path(settings.log_dir).joinpath(settings.log_access_filename).resolve()
             ),
             "formatter": "basic_formatter",
-            "maxBytes": 2048,
+            "maxBytes": 2097152,
             "backupCount": 10,
         },
     }

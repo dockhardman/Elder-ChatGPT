@@ -10,6 +10,7 @@ services:
     depends_on:
       - tracker-store-service
     environment:
+      - COLUMNS=${COLUMNS:-120}
       - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - openai_organization=${openai_organization:-org-************************}
     ports:
@@ -34,6 +35,7 @@ services:
     depends_on:
       - tracker-store-service
     environment:
+      - COLUMNS=${COLUMNS:-120}
       - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
       - line_channel_secret=${line_channel_secret:-********************************}
     ports:
