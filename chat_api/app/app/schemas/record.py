@@ -3,7 +3,7 @@ from typing import Text
 from pydantic import BaseModel
 
 
-class EndpointPerformance(BaseModel):
+class EndpointRecord(BaseModel):
     """API Performance Schema"""
 
     name: Text

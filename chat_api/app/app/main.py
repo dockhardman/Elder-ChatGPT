@@ -6,7 +6,7 @@ import fastapi
 import openai
 from fastapi.responses import PlainTextResponse
 
-from app.schemas.performance import EndpointPerformance
+from app.schemas.record import EndpointRecord
 from app.config import endpoint_logger, settings
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ def create_app():
         timecost = time_end - time_start
 
         endpoint_logger.info(
-            EndpointPerformance(
+            EndpointRecord(
                 name=settings.app_name,
                 version=settings.app_version,
                 method=request.method,

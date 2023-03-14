@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     log_access_filename: Text = "access.log"
     log_error_filename: Text = "error.log"
     log_service_filename: Text = "service.log"
-    log_endpoint_performance_filename: Text = "endpoint.log"
+    log_endpoint_filename: Text = "endpoint.log"
     log_openai_record_filename: Text = "openai_record.log"
 
     # OpenAI Config
@@ -92,12 +92,12 @@ class LoggingConfig(BaseSettings):
             "maxBytes": 2097152,
             "backupCount": 10,
         },
-        "endpoint_performance_handler": {
+        "endpoint_handler": {
             "level": settings.app_logger_level,
             "class": "logging.FileHandler",
             "filename": (
                 Path(settings.log_dir)
-                .joinpath(settings.log_endpoint_performance_filename)
+                .joinpath(settings.log_endpoint_filename)
                 .resolve()
             ),
             "formatter": "json_formatter",
@@ -116,7 +116,7 @@ class LoggingConfig(BaseSettings):
         },
         settings.endpoint_logger_name: {
             "level": settings.app_logger_level,
-            "handlers": ["endpoint_performance_handler"],
+            "handlers": ["endpoint_handler"],
             "propagate": True,
         },
     }
