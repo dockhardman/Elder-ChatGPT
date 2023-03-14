@@ -1,10 +1,16 @@
 import logging
+import time
+from typing import TYPE_CHECKING
 
 import fastapi
 import openai
 from fastapi.responses import PlainTextResponse
 
-from app.config import settings
+from app.schemas.performance import EndpointPerformance
+from app.config import endpoint_logger, settings
+
+if TYPE_CHECKING:
+    from starlette.middleware.base import _StreamingResponse
 
 
 logger = logging.getLogger(settings.logger_name)
@@ -19,6 +25,29 @@ def create_app():
     async def on_event_startup():
         openai.organization = settings.openai_organization
         openai.api_key = settings.openai_api_key
+
+    @app.middleware("http")
+    async def log_api_performance(request: "fastapi.Request", call_next):
+        time_start = time.time()
+        response: "_StreamingResponse" = await call_next(request)
+        time_end = time.time()
+        timecost = time_end - time_start
+
+        endpoint_logger.info(
+            EndpointPerformance(
+                name=settings.app_name,
+                version=settings.app_version,
+                method=request.method,
+                path=request.url.path,
+                status_code=response.status_code,
+                time_start=time_start,
+                time_end=time_end,
+                response_time=timecost,
+                response_type=response.headers["Content-Type"],
+            )
+        )
+        response.headers["X-Process-Time"] = str(timecost)
+        return response
 
     @app.get("/")
     async def root():
