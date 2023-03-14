@@ -1,13 +1,16 @@
 import logging
+import time
 from typing import TYPE_CHECKING
 
 import fastapi
 from fastapi.responses import PlainTextResponse
 
-from app.config import logger, settings, uvicorn_logger
+from app.config import endpoint_logger, logger, settings, uvicorn_logger
+from app.schemas.performance import EndpointPerformance
 
 if TYPE_CHECKING:
     import databases
+    from starlette.middleware.base import _StreamingResponse
 
 
 logger = logging.getLogger(settings.app_logger_name)
@@ -39,6 +42,29 @@ def create_app():
         if message_database_.is_connected:
             await message_database_.disconnect()
         logger.debug("Message database is disconnected.")
+
+    @app.middleware("http")
+    async def log_api_performance(request: "fastapi.Request", call_next):
+        time_start = time.time()
+        response: "_StreamingResponse" = await call_next(request)
+        time_end = time.time()
+        timecost = time_end - time_start
+
+        endpoint_logger.info(
+            EndpointPerformance(
+                name=settings.app_name,
+                version=settings.app_version,
+                method=request.method,
+                path=request.url.path,
+                status_code=response.status_code,
+                time_start=time_start,
+                time_end=time_end,
+                response_time=timecost,
+                response_type=response.headers["Content-Type"],
+            )
+        )
+        response.headers["X-Process-Time"] = str(timecost)
+        return response
 
     # Root Route
     @app.get("/")

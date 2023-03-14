@@ -20,19 +20,20 @@ def is_serializable(obj: Any):
 class Settings(BaseSettings):
     # General
     app_name: str = "Channel-API"
+    app_version: str = "0.1.0"
     app_timezone: str = "Asia/Taipei"
 
     # Logging Config
     app_logger_name: str = "channel_api"
     app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
-    api_logger_name: str = "api"
+    endpoint_logger_name: str = "api"
 
     log_dir: Text = "log"
     log_access_filename: Text = "access.log"
     log_error_filename: Text = "error.log"
     log_service_filename: Text = "service.log"
-    log_api_record_filename: Text = "api.log"
+    log_endpoint_performance_filename: Text = "api.log"
 
     # Line Config
     line_channel_access_token: Text = ""
@@ -97,12 +98,12 @@ class LoggingConfig(BaseSettings):
             "maxBytes": 2097152,
             "backupCount": 10,
         },
-        "api_record_handler": {
+        "endpoint_performance_handler": {
             "level": settings.app_logger_level,
             "class": "logging.FileHandler",
             "filename": (
                 Path(settings.log_dir)
-                .joinpath(settings.log_api_record_filename)
+                .joinpath(settings.log_endpoint_performance_filename)
                 .resolve()
             ),
             "formatter": "json_formatter",
@@ -119,9 +120,9 @@ class LoggingConfig(BaseSettings):
             "handlers": ["console_handler", "access_handler"],
             "propagate": True,
         },
-        settings.api_logger_name: {
+        settings.endpoint_logger_name: {
             "level": settings.app_logger_level,
-            "handlers": ["console_handler", "api_record_handler"],
+            "handlers": ["endpoint_performance_handler"],
             "propagate": True,
         },
     }
@@ -149,4 +150,4 @@ logging.setLogRecordFactory(custom_log_record_factory)
 
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
-api_logger = logging.getLogger(settings.api_logger_name)
+endpoint_logger = logging.getLogger(settings.endpoint_logger_name)
