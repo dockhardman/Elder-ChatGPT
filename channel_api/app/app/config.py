@@ -27,13 +27,13 @@ class Settings(BaseSettings):
     app_logger_name: str = "channel_api"
     app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
-    endpoint_logger_name: str = "api"
+    endpoint_logger_name: str = "endpoint"
 
     log_dir: Text = "log"
     log_access_filename: Text = "access.log"
     log_error_filename: Text = "error.log"
     log_service_filename: Text = "service.log"
-    log_endpoint_performance_filename: Text = "api.log"
+    log_endpoint_performance_filename: Text = "endpoint.log"
 
     # Line Config
     line_channel_access_token: Text = ""
