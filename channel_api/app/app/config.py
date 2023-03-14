@@ -1,8 +1,20 @@
 import logging
+import json
 from pathlib import Path
-from typing import Text
+from typing import Any, Dict, Text
 
-from pydantic import BaseSettings
+from pydantic import BaseModel, BaseSettings
+
+
+def is_serializable(obj: Any):
+    try:
+        if isinstance(obj, BaseModel):
+            obj.json()
+        else:
+            json.dumps(obj)
+        return True
+    except TypeError:
+        return False
 
 
 class Settings(BaseSettings):
@@ -14,11 +26,13 @@ class Settings(BaseSettings):
     app_logger_name: str = "channel_api"
     app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
+    api_logger_name: str = "api"
 
     log_dir: Text = "log"
     log_access_filename: Text = "access.log"
     log_error_filename: Text = "error.log"
     log_service_filename: Text = "service.log"
+    log_api_record_filename: Text = "api.log"
 
     # Line Config
     line_channel_access_token: Text = ""
@@ -43,6 +57,9 @@ class LoggingConfig(BaseSettings):
     formatters = {
         "basic_formatter": {
             "format": "%(asctime)s %(levelname)-8s %(name)s  - %(message)s",
+        },
+        "json_formatter": {
+            "format": "%(json_message)s",
         },
     }
     handlers = {
@@ -80,6 +97,16 @@ class LoggingConfig(BaseSettings):
             "maxBytes": 2097152,
             "backupCount": 10,
         },
+        "api_record_handler": {
+            "level": settings.app_logger_level,
+            "class": "logging.FileHandler",
+            "filename": (
+                Path(settings.log_dir)
+                .joinpath(settings.log_api_record_filename)
+                .resolve()
+            ),
+            "formatter": "json_formatter",
+        },
     }
     loggers = {
         settings.app_logger_name: {
@@ -92,10 +119,34 @@ class LoggingConfig(BaseSettings):
             "handlers": ["console_handler", "access_handler"],
             "propagate": True,
         },
+        settings.api_logger_name: {
+            "level": settings.app_logger_level,
+            "handlers": ["console_handler", "api_record_handler"],
+            "propagate": True,
+        },
     }
+
+
+default_log_record_factory = logging.getLogRecordFactory()
+
+
+def custom_log_record_factory(*args, **kwargs):
+    record = default_log_record_factory(*args, **kwargs)
+
+    if is_serializable(record.msg):
+        if isinstance(record.msg, BaseModel):
+            record.json_message = record.msg.json(ensure_ascii=False)
+        elif isinstance(record.msg, Dict):
+            record.json_message = json.dumps(record.msg, ensure_ascii=False)
+    return record
 
 
 logging_config = LoggingConfig()
 logging.config.dictConfig(logging_config)
+
+default_factory = logging.getLogRecordFactory()
+logging.setLogRecordFactory(custom_log_record_factory)
+
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
+api_logger = logging.getLogger(settings.api_logger_name)
