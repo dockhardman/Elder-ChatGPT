@@ -1,18 +1,21 @@
+import time
 from typing import Dict, List, Text, Union
 
 import openai
-from fastapi import APIRouter, Body, Path
+from fastapi import APIRouter, Body, Depends, Path
 from fastapi.responses import JSONResponse
 from openai.api_resources.model import Model
 from openai.openai_object import OpenAIObject
 
+from app.config import openai_logger
 from app.schemas.chat import (
     ChatCompletionCall,
     ChatCompletionResponse,
     ChatMessage,
     ModelsListResult,
 )
-
+from app.schemas.record import OpenAIRecord
+from app.utils.common import async_time
 
 router = APIRouter()
 
@@ -49,7 +52,8 @@ async def model(model: Text = Path(..., example="ada")):
 async def chat_completion(
     chat_call: Union[ChatCompletionCall, List[ChatMessage]] = Body(
         ..., example=[{"role": "user", "content": "hello"}]
-    )
+    ),
+    time_start: float = Depends(async_time),
 ):
     """Query chat completion."""
 
@@ -62,4 +66,13 @@ async def chat_completion(
     completion_res: ChatCompletionResponse = completion_result.to_dict_recursive()
     messages_res = [choice["message"] for choice in completion_res["choices"]]
 
+    time_end = time.time()
+    openai_logger.info(
+        OpenAIRecord(
+            **completion_res,
+            timeStart=time_start,
+            timeEnd=time_end,
+            timeCost=time_end - time_start
+        )
+    )
     return messages_res
