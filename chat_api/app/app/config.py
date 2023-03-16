@@ -102,6 +102,16 @@ class LoggingConfig(BaseSettings):
             ),
             "formatter": "json_formatter",
         },
+        "openai_handler": {
+            "level": settings.app_logger_level,
+            "class": "logging.FileHandler",
+            "filename": (
+                Path(settings.log_dir)
+                .joinpath(settings.log_openai_record_filename)
+                .resolve()
+            ),
+            "formatter": "json_formatter",
+        },
     }
     loggers = {
         settings.app_logger_name: {
@@ -117,6 +127,11 @@ class LoggingConfig(BaseSettings):
         settings.endpoint_logger_name: {
             "level": settings.app_logger_level,
             "handlers": ["endpoint_handler"],
+            "propagate": True,
+        },
+        settings.openai_record_logger_name: {
+            "level": settings.app_logger_level,
+            "handlers": ["openai_handler"],
             "propagate": True,
         },
     }
@@ -145,3 +160,4 @@ logging.setLogRecordFactory(custom_log_record_factory)
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
 endpoint_logger = logging.getLogger(settings.endpoint_logger_name)
+openai_logger = logging.getLogger(settings.openai_record_logger_name)
