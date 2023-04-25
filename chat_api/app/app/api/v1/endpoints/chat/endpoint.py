@@ -1,78 +1,38 @@
-import time
-from typing import Dict, List, Text, Union
-
-import openai
-from fastapi import APIRouter, Body, Depends, Path
+import aiohttp
+from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
-from openai.api_resources.model import Model
-from openai.openai_object import OpenAIObject
+from yarl import URL
 
-from app.config import openai_logger
-from app.schemas.chat import (
-    ChatCompletionCall,
-    ChatCompletionResponse,
-    ChatMessage,
-    ModelsListResult,
-)
-from app.schemas.record import OpenAIRecord
-from app.utils.common import async_time
+from app.config import settings
+from app.schemas.chat import ChatCall, ChatMessage, ChatResponse
+from app.schemas.gpt import ChatCompletionCall, GPTChatMessage
+
 
 router = APIRouter()
 
 
-@router.get("/status")
-async def status():
-    """Status check."""
+@router.post("/send", response_class=JSONResponse, response_model=ChatResponse)
+@router.post("/", response_class=JSONResponse, response_model=ChatResponse)
+@router.post("", response_class=JSONResponse, response_model=ChatResponse)
+async def chat_send(chat_call: ChatCall = Body(...)):
+    """Send chat message."""
 
-    return JSONResponse({"success": True})
-
-
-@router.get("/models")
-async def list_models():
-    """List models."""
-
-    models_result: "OpenAIObject" = await openai.Model.alist()
-    models_data: ModelsListResult = models_result.to_dict_recursive()
-    models_list = models_data["data"]
-    return JSONResponse(models_list)
-
-
-@router.get("/models/{model}")
-async def model(model: Text = Path(..., example="ada")):
-    """Get model description."""
-
-    models_result: "Model" = await openai.Model.aretrieve(model)
-    models_data: Dict = models_result.to_dict_recursive()
-    return JSONResponse(models_data)
-
-
-@router.post(
-    "/completion", response_class=JSONResponse, response_model=List[ChatMessage]
-)
-async def chat_completion(
-    chat_call: Union[ChatCompletionCall, List[ChatMessage]] = Body(
-        ..., example=[{"role": "user", "content": "hello"}]
-    ),
-    time_start: float = Depends(async_time),
-):
-    """Query chat completion."""
-
-    if isinstance(chat_call, List):
-        chat_call = ChatCompletionCall(messages=chat_call)
-
-    completion_result: "OpenAIObject" = await openai.ChatCompletion.acreate(
-        **chat_call.dict()
+    chat_res = ChatResponse(messages=[], metadata=chat_call.metadata)
+    chat_completion_call = ChatCompletionCall(
+        messages=[GPTChatMessage(role="user", content=chat_call.message)]
     )
-    completion_res: ChatCompletionResponse = completion_result.to_dict_recursive()
-    messages_res = [choice["message"] for choice in completion_res["choices"]]
 
-    time_end = time.time()
-    openai_logger.info(
-        OpenAIRecord(
-            **completion_res,
-            timeStart=time_start,
-            timeEnd=time_end,
-            timeCost=time_end - time_start
-        )
+    gpt_completion_url = URL(settings.host_gpt_service).with_path(
+        settings.gpt_chat_completion_endpoint
     )
-    return messages_res
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            gpt_completion_url, json=chat_completion_call.dict()
+        ) as resp:
+            resp.raise_for_status()
+            _data = await resp.json()
+            for _message in _data:
+                _gpt_message = GPTChatMessage(**_message)
+                chat_res.messages.append(ChatMessage(text=_gpt_message.content))
+
+    return chat_res

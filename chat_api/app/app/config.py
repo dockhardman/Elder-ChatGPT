@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     openai_api_key: str = "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     openai_organization: str = "org-************************"
 
+    # External Service Config
+    host_gpt_service = "http://chat-api-service"
+    gpt_chat_completion_endpoint = "/api/gpt/chat/completion"
+
 
 settings = Settings()
 
@@ -62,6 +66,7 @@ class LoggingConfig(BaseSettings):
             "level": settings.app_logger_level,
             "class": "rich.logging.RichHandler",
             "rich_tracebacks": True,
+            "show_path": False,
             "tracebacks_show_locals": False,
         },
         "file_handler": {
