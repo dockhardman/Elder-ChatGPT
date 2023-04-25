@@ -4,6 +4,10 @@ from pathlib import Path
 from typing import Any, Dict, Text
 
 from pydantic import BaseModel, BaseSettings
+from rich.console import Console
+
+
+console = Console()
 
 
 def is_serializable(obj: Any):
@@ -22,6 +26,8 @@ class Settings(BaseSettings):
     app_name: str = "Chat-API"
     app_version: str = "0.1.0"
     app_timezone: str = "Asia/Taipei"
+    data_dir: Text = "data"
+    messages_dir: Text = f"{data_dir}/messages"
 
     # Logging Config
     logger_name: str = "chat_api"
@@ -45,6 +51,9 @@ class Settings(BaseSettings):
     # External Service Config
     host_gpt_service = "http://chat-api-service"
     gpt_chat_completion_endpoint = "/api/gpt/chat/completion"
+    tracker_store_service_url: Text = (
+        "postgresql://postgres:default@tracker-store-service:5432/postgres"
+    )
 
 
 settings = Settings()

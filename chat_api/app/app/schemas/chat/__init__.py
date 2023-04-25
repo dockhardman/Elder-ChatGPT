@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel, anystr_strip_whitespace=True):
+    sender: Text
+    type: Text = "user"
     text: Optional[Text] = None
     object: Optional[Dict] = None
     image: Optional[Any] = None
