@@ -1,48 +1,26 @@
-from typing import List, Text, TypedDict
+import time
+from typing import Any, Dict, List, Optional, Text
 
-from openai.api_resources.model import Model
-from pydantic import BaseModel
-
-
-class ModelsListResult(TypedDict):
-    object: Text
-    data: List["Model"]
+from pydantic import BaseModel, Field
 
 
-class ChatMessage(BaseModel):
-    role: Text
-    content: Text
+class ChatMessage(BaseModel, anystr_strip_whitespace=True):
+    sender: Text
+    type: Text = "user"
+    text: Optional[Text] = None
+    object: Optional[Dict] = None
+    image: Optional[Any] = None
+    audio: Optional[Any] = None
+    url: Optional[Text] = None
+    timestamp: Optional[float] = Field(default_factory=time.time)
 
 
-class ChatMessageUser(ChatMessage):
-    role: Text = "user"
+class ChatCall(BaseModel, anystr_strip_whitespace=True):
+    sender: Text
+    message: Text
+    metadata: Dict = Field(default_factory=dict)
 
 
-class ChatMessageAssistant(ChatMessage):
-    role: Text = "assistant"
-
-
-class ChatCompletionCall(BaseModel):
-    model: Text = "gpt-3.5-turbo"
+class ChatResponse(BaseModel):
     messages: List[ChatMessage]
-
-
-class ChatUsage(TypedDict):
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
-
-
-class ChatChoice(TypedDict):
-    message: ChatMessage
-    finish_reason: Text
-    index: int
-
-
-class ChatCompletionResponse(TypedDict):
-    id: Text
-    object: Text
-    created: int
-    model: Text
-    usage: ChatUsage
-    choices: List[ChatChoice]
+    metadata: Dict = Field(default_factory=dict)

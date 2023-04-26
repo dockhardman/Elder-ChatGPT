@@ -1,33 +1,19 @@
-from typing import List, Text
+from typing import Text
 
 import aiohttp
 from yarl import URL
 
 from app.config import settings
-from app.schemas.chat import Message
+from app.schemas.chat import ChatCall, ChatResponse
 
 
 async def requests_chat_api(
-    messages: List[Message], url: Text = settings.chat_api_service_url
-) -> List[Message]:
-    """Requests chat API.
-
-    Parameters
-    ----------
-    messages : List[Message]
-        Messages.
-    url : Text, optional
-        Chat API URL, by default settings.chat_api_service_url
-
-    Returns
-    -------
-    Message
-        Response message.
-    """
-
+    chat_call: "ChatCall",
+    url: Text = URL(settings.host_chat_service).with_path(settings.chat_send_endpoint),
+) -> "ChatResponse":
     async with aiohttp.ClientSession() as session:
-        async with session.post(URL(url), json=messages) as resp:
+        async with session.post(URL(url), json=chat_call.dict()) as resp:
             resp.raise_for_status()
-            return_messages: List[Message] = await resp.json()
-
-    return return_messages
+            _data = await resp.json()
+            chat_res = ChatResponse(**_data)
+    return chat_res

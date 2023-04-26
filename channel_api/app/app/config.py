@@ -46,7 +46,8 @@ class Settings(BaseSettings):
     tracker_store_message_encrypt_secret = "secret456"
 
     # Chat API Config
-    chat_api_service_url: Text = "http://chat-api-service/api/chat/completion"
+    host_chat_service = "http://chat-api-service"
+    chat_send_endpoint = "/api/chat"
 
 
 settings = Settings()
@@ -68,6 +69,7 @@ class LoggingConfig(BaseSettings):
             "level": settings.app_logger_level,
             "class": "rich.logging.RichHandler",
             "rich_tracebacks": True,
+            "show_path": False,
             "tracebacks_show_locals": False,
         },
         "file_handler": {
