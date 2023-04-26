@@ -46,7 +46,8 @@ class Settings(BaseSettings):
     tracker_store_message_encrypt_secret = "secret456"
 
     # Chat API Config
-    chat_api_service_url: Text = "http://chat-api-service/api/chat/completion"
+    host_gpt_service = "http://chat-api-service"
+    gpt_chat_completion_endpoint = "/api/gpt/chat/completion"
 
 
 settings = Settings()
