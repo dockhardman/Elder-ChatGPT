@@ -2,68 +2,39 @@ version: "3"
 
 services:
   chat-api-service:
-    image: chat-api-service:0.2.0a1
-    container_name: chat-api-service
-    build:
-      context: ./chat_api
-      dockerfile: Dockerfile
-    depends_on:
-      - tracker-store-service
     environment:
-      - COLUMNS=${COLUMNS:-120}
       - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - openai_organization=${openai_organization:-org-************************}
     ports:
       - "8980:80"
-    networks:
-      - chat-network
     volumes:
       - ./chat_api/app:/app
     deploy:
       resources:
         limits:
           memory: 500M
-    restart: always
-    tty: true
 
   channel-api-service:
-    image: channel-api-service:0.2.0a1
-    container_name: channel-api-service
-    build:
-      context: ./channel_api
-      dockerfile: Dockerfile
-    depends_on:
-      - tracker-store-service
     environment:
-      - COLUMNS=${COLUMNS:-120}
       - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
       - line_channel_secret=${line_channel_secret:-********************************}
     ports:
       - "8981:80"
-    networks:
-      - chat-network
     volumes:
       - ./channel_api/app:/app
     deploy:
       resources:
         limits:
           memory: 500M
-    restart: always
-    tty: true
 
   tracker-store-service:
-    image: postgres:11-bullseye
-    container_name: tracker-store-service
     environment:
       - POSTGRES_PASSWORD=${TRACKER_STORE_PASSWORD:-default}
     volumes:
       - ./tracker_store/data/:/var/lib/postgresql/data/
     ports:
       - "15432:5432"
-    networks:
-      - chat-network
     deploy:
       resources:
         limits:
           memory: 500M
-    restart: always
