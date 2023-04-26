@@ -9,9 +9,7 @@ from app.schemas.chat import ChatCall, ChatResponse
 
 async def requests_chat_api(
     chat_call: "ChatCall",
-    url: Text = URL(settings.host_gpt_service).with_path(
-        settings.gpt_chat_completion_endpoint
-    ),
+    url: Text = URL(settings.host_chat_service).with_path(settings.chat_send_endpoint),
 ) -> "ChatResponse":
     async with aiohttp.ClientSession() as session:
         async with session.post(URL(url), json=chat_call.dict()) as resp:
