@@ -1,13 +1,9 @@
-import logging
-
 import openai
 import sanic
-from sanic import response
-from sanic import request
+from sanic.request import Request
+from sanic.response import text as PlainTextResponse
 
-from app.config import settings
-
-logger = logging.getLogger(settings.logger_name)
+from app.config import logger, settings
 
 
 def create_app():
@@ -15,16 +11,20 @@ def create_app():
         name=settings.app_name,
     )
 
-    @app.main_process_start
-    async def main_process_start(*_):
+    @app.before_server_start
+    async def before_server_start(*_):
         openai.organization = settings.openai_organization
         openai.api_key = settings.openai_api_key
+        logger.debug(f"Set OpenAI credentials for {openai.organization}")
 
     @app.get("/")
-    async def root(request: request.Request):
-        return response.text("OK")
+    async def root(request: "Request"):
+        return PlainTextResponse("OK")
 
     # Router
+    from app.api.blueprint import blueprint
+
+    app.blueprint(blueprint)
 
     return app
 
