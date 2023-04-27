@@ -1,9 +1,16 @@
 import openai
 import sanic
+from pyassorted.datetime import Timer
 from sanic.request import Request
 from sanic.response import text as PlainTextResponse
 
 from app.config import logger, settings
+
+
+def get_timer(request: "Request") -> "Timer":
+    timer = Timer()
+    timer.click()
+    return timer
 
 
 def create_app():
@@ -20,6 +27,8 @@ def create_app():
     @app.get("/")
     async def root(request: "Request"):
         return PlainTextResponse("OK")
+
+    app.ext.add_dependency(Timer, get_timer)
 
     # Router
     from app.api.blueprint import blueprint

@@ -1,3 +1,4 @@
+import dataclasses
 import json
 import logging
 from pathlib import Path
@@ -5,6 +6,8 @@ from typing import Any, Dict, Text
 
 from pydantic import BaseModel, BaseSettings
 from rich.console import Console
+
+from app.version import VERSION
 
 
 console = Console()
@@ -14,6 +17,8 @@ def is_serializable(obj: Any):
     try:
         if isinstance(obj, BaseModel):
             obj.json()
+        elif dataclasses.is_dataclass(obj):
+            json.dumps(dataclasses.asdict(obj))
         else:
             json.dumps(obj)
         return True
@@ -24,7 +29,7 @@ def is_serializable(obj: Any):
 class Settings(BaseSettings):
     # General
     app_name: str = "GPT-API"
-    app_version: str = "0.1.0"
+    app_version: str = VERSION
     app_timezone: str = "Asia/Taipei"
     data_dir: Text = "data"
 
@@ -120,6 +125,10 @@ def custom_log_record_factory(*args, **kwargs):
     if is_serializable(record.msg):
         if isinstance(record.msg, BaseModel):
             record.json_message = record.msg.json(ensure_ascii=False)
+        elif dataclasses.is_dataclass(record.msg):
+            record.json_message = json.dumps(
+                dataclasses.asdict(record.msg), ensure_ascii=False
+            )
         elif isinstance(record.msg, Dict):
             record.json_message = json.dumps(record.msg, ensure_ascii=False)
     return record

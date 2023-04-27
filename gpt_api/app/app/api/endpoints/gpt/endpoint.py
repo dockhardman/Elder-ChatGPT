@@ -3,12 +3,14 @@ from typing import Dict, List, Text, Union
 import openai
 import openai.error
 from openai.openai_object import OpenAIObject
+from pyassorted.datetime import Timer
 from sanic import Blueprint
 from sanic.exceptions import NotFound
 from sanic.request import Request
 from sanic.response import json as JSONResponse, text as PlainTextResponse
 from sanic_ext import openapi, validate
 
+from app.config import logger, openai_logger
 from app.schemas.gpt import (
     ChatCompletionCall,
     ChatCompletionResponse,
@@ -16,6 +18,7 @@ from app.schemas.gpt import (
     Model,
     ModelsListResult,
 )
+from app.schemas.record import OpenAIRecord
 
 
 blueprint = Blueprint(name="gpt")
@@ -56,17 +59,22 @@ async def model(request: "Request", model: Text):
 @openapi.body(ChatCompletionCall, body_argument="chat_call")
 @validate(json=ChatCompletionCall, body_argument="chat_call")
 async def gpt_chat_completion(
-    request: "Request", chat_call: Union[ChatCompletionCall, List[GPTChatMessage]]
+    request: "Request",
+    chat_call: Union[ChatCompletionCall, List[GPTChatMessage]],
+    timer: "Timer",
 ):
     """Query chat completion."""
 
     if isinstance(chat_call, List):
         chat_call = ChatCompletionCall(messages=chat_call)
+    logger.debug(f"Chat Completion Call: {chat_call.dict()}")
 
     completion_result: "OpenAIObject" = await openai.ChatCompletion.acreate(
         **chat_call.dict()
     )
     completion_res: ChatCompletionResponse = completion_result.to_dict_recursive()
-    messages_res = [choice["message"] for choice in completion_res["choices"]]
+    logger.debug(f"Chat Completion Response: {completion_res}")
+    openai_logger.info(OpenAIRecord(**completion_res, time_cost=timer.click()))
 
+    messages_res = [choice["message"] for choice in completion_res["choices"]]
     return JSONResponse(messages_res)
