@@ -24,7 +24,7 @@ def is_serializable(obj: Any):
 class Settings(BaseSettings):
     # General
     app_name: str = "Chat-API"
-    app_version: str = "0.1.0"
+    app_version: str = "0.3.0"
     app_timezone: str = "Asia/Taipei"
     data_dir: Text = "data"
     messages_dir: Text = f"{data_dir}/messages"

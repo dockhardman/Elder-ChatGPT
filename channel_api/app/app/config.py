@@ -20,7 +20,7 @@ def is_serializable(obj: Any):
 class Settings(BaseSettings):
     # General
     app_name: str = "Channel-API"
-    app_version: str = "0.1.0"
+    app_version: str = "0.3.0"
     app_timezone: str = "Asia/Taipei"
 
     # Logging Config
