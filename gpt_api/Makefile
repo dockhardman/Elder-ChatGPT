@@ -1,3 +1,7 @@
+# Developing
+logs:
+	docker logs -f --tail 300 fami-gpt-api-service
+
 install_all:
 	poetry install --with dev --no-root
 

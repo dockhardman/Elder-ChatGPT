@@ -1,3 +1,10 @@
+# Developing
+logs:
+	docker logs -f --tail 300 fami-channel-api-service
+
+install_all:
+	poetry install --with dev --no-root
+
 update_dependencies:
 	poetry update
 	poetry export --without-hashes -f requirements.txt -E all --output requirements.txt

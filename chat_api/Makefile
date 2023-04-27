@@ -1,3 +1,10 @@
+# Developing
+logs:
+	docker logs -f --tail 300 fami-chat-api-service
+
+install_all:
+	poetry install --with dev --no-root
+
 update_dependencies:
 	poetry update
 	poetry export --without-hashes -f requirements.txt --output requirements.txt
