@@ -744,14 +744,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pyassorted"
-version = "0.4.0"
+version = "0.5.0"
 description = "A library has light-weight assorted utils in Prue-Python."
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4.0.0"
 files = [
-    {file = "pyassorted-0.4.0-py3-none-any.whl", hash = "sha256:b419216882fcc171a983cd2f4cffe9788782b4b7c22c675f2af6348a6d33f8cd"},
-    {file = "pyassorted-0.4.0.tar.gz", hash = "sha256:148b349f2faf5f134b21ea2c8b51ed88a2bd2bf7af398a185fec46e9bbaa379a"},
+    {file = "pyassorted-0.5.0-py3-none-any.whl", hash = "sha256:6a22c6682fbc3668e75017fbe323a019936c81abe4a17117e04cc27e5da6167f"},
+    {file = "pyassorted-0.5.0.tar.gz", hash = "sha256:24a3eae2932aa5dba75247fae764271ad732b21af8bc8149364f4134a92b3e14"},
 ]
 
 [package.dependencies]
