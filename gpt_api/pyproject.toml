@@ -13,7 +13,6 @@ rich = "*"
 pytz = "*"
 urllib3 = "*"
 sanic = {extras = ["ext"], version = ">=23.3.0"}
-sanic-openapi = "*"
 openai = ">=0.27.0"
 pyassorted = "*"
 pydantic = "*"
