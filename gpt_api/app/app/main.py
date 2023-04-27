@@ -30,10 +30,10 @@ def create_app():
 
     app.ext.add_dependency(Timer, get_timer)
 
-    # Router
-    from app.api.blueprint import blueprint
+    # Blueprint
+    from app.api.blueprint import blueprint as api_blueprint
 
-    app.blueprint(blueprint)
+    app.blueprint(api_blueprint)
 
     return app
 
