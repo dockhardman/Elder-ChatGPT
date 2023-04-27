@@ -30,22 +30,3 @@ class EndpointRecord(BaseModel):
                 "response_type": "application/json",
             }
         }
-
-
-class OpenAIChatUsage(BaseModel):
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
-
-
-class OpenAIRecord(BaseModel):
-    """OpenAI Record Schema"""
-
-    id: Text
-    object: Text
-    created: int
-    model: Text
-    usage: OpenAIChatUsage
-    timeStart: float
-    timeEnd: float
-    timeCost: float

@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "gpt-api"
+version = "0.2.0"
+description = ""
+authors = ["Allen Chou <f1470891079@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "gpt_api"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8.0,<4.0.0"
+rich = "*"
+pytz = "*"
+urllib3 = "*"
+sanic = {extras = ["ext"], version = ">=23.3.0"}
+openai = ">=0.27.0"
+pyassorted = "*"
+pydantic = "*"
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
