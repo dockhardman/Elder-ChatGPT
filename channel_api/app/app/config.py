@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     # Tracker Config
     tracker_store_service_url: Text = (
-        "postgresql://postgres:default@tracker-store-service:5432/postgres"
+        "postgresql://postgres:default@fami-tracker-store-service:5432/postgres"
     )
     tracker_store_message_encrypt_secret = "secret456"
 
