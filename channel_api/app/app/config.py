@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     tracker_store_message_encrypt_secret = "secret456"
 
     # Chat API Config
-    host_chat_service = "http://chat-api-service"
+    host_chat_service = "http://fami-chat-api-service"
     chat_send_endpoint = "/api/chat"
 
 

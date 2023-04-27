@@ -23,8 +23,7 @@ def create_app():
 
     @app.on_event("startup")
     async def on_event_startup():
-        openai.organization = settings.openai_organization
-        openai.api_key = settings.openai_api_key
+        logger.debug("on_event_startup")
 
     @app.middleware("http")
     async def log_api_performance(request: "fastapi.Request", call_next):
@@ -57,8 +56,8 @@ def create_app():
     from app.api.router import router as router_main
     from app.api.v1.router import router as router_v1
 
-    app.include_router(router_main, prefix=f"/api")
-    app.include_router(router_v1, prefix=f"/api/v1")
+    app.include_router(router_main, prefix="/api")
+    app.include_router(router_v1, prefix="/api/v1")
 
     return app
 

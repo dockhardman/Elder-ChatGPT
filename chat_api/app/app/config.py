@@ -35,21 +35,15 @@ class Settings(BaseSettings):
     app_logger_level: str = "DEBUG"
     uvicorn_logger_name: str = "uvicorn.error"
     endpoint_logger_name: str = "endpoint"
-    openai_record_logger_name: str = "openai_record"
 
     log_dir: Text = "log"
     log_access_filename: Text = "access.log"
     log_error_filename: Text = "error.log"
     log_service_filename: Text = "service.log"
     log_endpoint_filename: Text = "endpoint.log"
-    log_openai_record_filename: Text = "openai_record.log"
-
-    # OpenAI Config
-    openai_api_key: str = "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    openai_organization: str = "org-************************"
 
     # External Service Config
-    host_gpt_service = "http://chat-api-service"
+    host_gpt_service = "http://fami-gpt-api-service"
     gpt_chat_completion_endpoint = "/api/gpt/chat/completion"
     tracker_store_service_url: Text = (
         "postgresql://postgres:default@tracker-store-service:5432/postgres"
@@ -116,16 +110,6 @@ class LoggingConfig(BaseSettings):
             ),
             "formatter": "json_formatter",
         },
-        "openai_handler": {
-            "level": settings.app_logger_level,
-            "class": "logging.FileHandler",
-            "filename": (
-                Path(settings.log_dir)
-                .joinpath(settings.log_openai_record_filename)
-                .resolve()
-            ),
-            "formatter": "json_formatter",
-        },
     }
     loggers = {
         settings.app_logger_name: {
@@ -141,11 +125,6 @@ class LoggingConfig(BaseSettings):
         settings.endpoint_logger_name: {
             "level": settings.app_logger_level,
             "handlers": ["endpoint_handler"],
-            "propagate": True,
-        },
-        settings.openai_record_logger_name: {
-            "level": settings.app_logger_level,
-            "handlers": ["openai_handler"],
             "propagate": True,
         },
     }
@@ -174,4 +153,3 @@ logging.setLogRecordFactory(custom_log_record_factory)
 logger = logging.getLogger(settings.app_logger_name)
 uvicorn_logger = logging.getLogger(settings.uvicorn_logger_name)
 endpoint_logger = logging.getLogger(settings.endpoint_logger_name)
-openai_logger = logging.getLogger(settings.openai_record_logger_name)
