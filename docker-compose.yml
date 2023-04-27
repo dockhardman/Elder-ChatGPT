@@ -3,7 +3,7 @@ version: "3"
 
 services:
   fami-chat-api-service:
-    image: fami-chat-api-service:0.3.1
+    image: fami-chat-api-service:0.3.2
     container_name: fami-chat-api-service
     build:
       context: ./chat_api
@@ -18,7 +18,7 @@ services:
     tty: true
 
   fami-channel-api-service:
-    image: fami-channel-api-service:0.3.1
+    image: fami-channel-api-service:0.3.2
     container_name: fami-channel-api-service
     build:
       context: ./channel_api
@@ -33,7 +33,7 @@ services:
     tty: true
 
   fami-gpt-api-service:
-    image: fami-gpt-api-service:0.3.1
+    image: fami-gpt-api-service:0.3.2
     container_name: fami-gpt-api-service
     build:
       context: ./gpt_api
