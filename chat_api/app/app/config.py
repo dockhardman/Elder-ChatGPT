@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     host_gpt_service = "http://fami-gpt-api-service"
     gpt_chat_completion_endpoint = "/api/gpt/chat/completion"
     tracker_store_service_url: Text = (
-        "postgresql://postgres:default@tracker-store-service:5432/postgres"
+        "postgresql://postgres:default@fami-tracker-store-service:5432/postgres"
     )
 
 
