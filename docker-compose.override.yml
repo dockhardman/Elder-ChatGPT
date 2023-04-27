@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  chat-api-service:
+  fami-chat-api-service:
     environment:
       - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - openai_organization=${openai_organization:-org-************************}
@@ -14,7 +14,7 @@ services:
         limits:
           memory: 500M
 
-  channel-api-service:
+  fami-channel-api-service:
     environment:
       - line_channel_access_token=${line_channel_access_token:-****************************************************************************************************************************************************************************}
       - line_channel_secret=${line_channel_secret:-********************************}
@@ -27,7 +27,21 @@ services:
         limits:
           memory: 500M
 
-  tracker-store-service:
+
+  fami-gpt-api-service:
+    environment:
+      - openai_api_key=${openai_api_key:-sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+      - openai_organization=${openai_organization:-org-************************}
+    ports:
+      - "8982:80"
+    volumes:
+      - ./gpt_api/app:/app
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  fami-tracker-store-service:
     environment:
       - POSTGRES_PASSWORD=${TRACKER_STORE_PASSWORD:-default}
     volumes:
